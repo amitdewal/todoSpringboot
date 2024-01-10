@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.JsonPath;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,6 +30,7 @@ public class TodoController {
 	
 	//add todo rest api
 	
+	@PreAuthorize("hasRole('ADMIN')")//method level authority
 	@PostMapping()
 	public ResponseEntity<TodoDto> addTodo(@RequestBody TodoDto todoDto) {
 		
@@ -39,6 +41,7 @@ public class TodoController {
 	
 	//get todo rest api
 	
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	@GetMapping("{id}")
 	public ResponseEntity<TodoDto> getTodo(@PathVariable("id") Long todoId) throws Exception{
 		TodoDto todoDto = todoService.getTodo(todoId);
@@ -47,6 +50,7 @@ public class TodoController {
 	}
 	
 	//get all todos rest api
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	@GetMapping
 	public ResponseEntity<List<TodoDto>> getAllTodos(){
 		List<TodoDto> allTodos = todoService.getAllTodos();
@@ -63,7 +67,7 @@ public class TodoController {
 		TodoDto updateTodo = todoService.updateTodo(todoDto, id);
 		return ResponseEntity.ok(updateTodo);
 	}
-	
+	@PreAuthorize("hasRole('ADMIN')")//method level authority
 	@DeleteMapping("{id}")
 	public ResponseEntity<String> deleteTodo(@PathVariable("id") Long id){
 		todoService.deleteTodo(id);
@@ -72,12 +76,14 @@ public class TodoController {
 	//build complete todo rest api
 	
 	@PatchMapping("{id}/complete")
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<TodoDto> completeTodo(@PathVariable("id") Long todoId){
 		TodoDto updatedTodo = todoService.completeTodo(todoId);
 		return ResponseEntity.ok(updatedTodo);
 	}
 	
 	@PatchMapping("{id}/in-complete")
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<TodoDto> inCompleteTodo(@PathVariable("id") Long todoId){
 		TodoDto updatedTodo = todoService.isCompleteTodo(todoId);
 		return ResponseEntity.ok(updatedTodo);
